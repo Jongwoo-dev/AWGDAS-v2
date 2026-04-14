@@ -41,7 +41,7 @@ out/
 
 ### Secrets ###
 config/secrets-*.yaml
-!config/secrets.yaml.example
+!config/secrets.example.yaml
 application-prod.yaml
 *.pem
 *.key
