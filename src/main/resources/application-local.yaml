@@ -1,9 +1,11 @@
 spring:
+  config:
+    import: optional:file:./config/secrets-local.yaml
   datasource:
-    url: jdbc:h2:mem:awgdas;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    url: ${app.db.url}
     driver-class-name: org.h2.Driver
-    username: sa
-    password:
+    username: ${app.db.username}
+    password: ${app.db.password:}
   h2:
     console:
       enabled: true

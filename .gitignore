@@ -40,10 +40,8 @@ out/
 .claude/settings.local.json
 
 ### Secrets ###
-.env
-.env.*
-!.env.example
+config/secrets-*.yaml
+!config/secrets.yaml.example
 application-prod.yaml
-**/secrets/
 *.pem
 *.key
