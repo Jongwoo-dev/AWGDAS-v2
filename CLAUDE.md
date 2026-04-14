@@ -78,6 +78,13 @@ Bash(git:*), Bash(./gradlew *), Bash(./gradlew.bat *),
 Bash(gh issue *), Bash(gh pr *), Bash(gh label *)
 ```
 
+## Cost Control
+
+- **Narrow first, broad when unclear** — start with targeted reads (specific file, specific function). Only expand scope when the targeted search is insufficient.
+- **Prefer Grep/Glob over Explore agents** for known targets (file name, class name, function name).
+- **Use Explore agents** when the scope is uncertain or multiple areas need investigation.
+- **Do NOT set hard limits** on file reads or agent count — accuracy comes first.
+
 ## See Also
 
 - `docs/harness/issue-workflow.md` — Issue-based development workflow details
