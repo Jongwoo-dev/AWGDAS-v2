@@ -31,21 +31,32 @@ git branch -a | grep "issue/{number}"
 ```
 If a branch exists, ask the user: continue existing work or start fresh?
 
-### 5. Create branch
+### 5. Sync main before branching
 ```
-git checkout main && git pull origin main
+git checkout main
+git pull origin main
+```
+Check if local main is ahead of remote:
+```
+git log origin/main..main --oneline
+```
+- If there are unpushed commits, **push them first**: `git push origin main`
+- This prevents unpushed commits from leaking into the feature branch PR diff.
+
+### 6. Create branch
+```
 git checkout -b issue/{number}-{kebab-title}
 ```
 Truncate the title portion to ~40 characters.
 
-### 6. Analyze the issue
+### 7. Analyze the issue
 Read the issue body carefully. Identify:
 - **What** needs to be built
 - **Which layers** are affected (domain, repository, service, controller, migration, template, config)
 - **Dependencies** on existing code
 - **Ambiguities** or missing information — if found, flag them clearly
 
-### 7. Output implementation plan
+### 8. Output implementation plan
 Present a structured plan:
 - Files to create/modify (full paths)
 - Flyway migration(s) needed (with proposed filename following `V{yyyyMMddHHmmss}__{desc}.sql`)
@@ -53,16 +64,16 @@ Present a structured plan:
 - Implementation order: migrations → domain → repository → service → DTO → controller → templates
 - Estimated scope: small (1-2 files) / medium (3-5 files) / large (6+ files)
 
-### 8. Wait for user approval
+### 9. Wait for user approval
 **Do NOT implement anything or change any labels before explicit user approval.**
 
-### 9. On approval
+### 10. On approval
 ```
 gh issue edit $ARGUMENTS --add-label "agent-working" --remove-label "agent-ready"
 ```
 Begin implementation following the approved plan.
 
-### 10. On rejection
+### 11. On rejection
 ```
 git checkout main
 git branch -D issue/{number}-{kebab-title}
