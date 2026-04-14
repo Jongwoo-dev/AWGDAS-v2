@@ -38,3 +38,12 @@ out/
 
 ### Claude Code ###
 .claude/settings.local.json
+
+### Secrets ###
+.env
+.env.*
+!.env.example
+application-prod.yaml
+**/secrets/
+*.pem
+*.key
