@@ -40,29 +40,18 @@ Human creates issue
 
 ## /issue-start Procedure
 
-Argument: GitHub issue number (e.g., `/issue-start 5`)
+Argument (optional): GitHub issue number. If omitted, selects the oldest `agent-ready` issue.
 
-1. **Read issue**: `gh issue view {N} --json title,body,labels,assignees,comments`
-2. **Verify label**: confirm `agent-ready` is present. If not, stop. This command does NOT handle `changes-requested` or other states.
-3. **Create branch**: from latest `main`
-   ```
-   git checkout main && git pull origin main
-   git checkout -b issue/{N}-{kebab-title}
-   ```
-   Truncate title to ~40 characters for the branch name.
-4. **Analyze issue**: identify
-   - What needs to be built
-   - Affected layers (entity, repository, service, controller, migration, template)
-   - Dependencies on existing code
-   - Ambiguities or missing information
-5. **Output plan**: structured implementation plan with
-   - Files to create/modify (full paths)
-   - Flyway migration(s) needed (with proposed filename)
-   - Test files to create
-   - Implementation order (migrations → domain → repository → service → controller → templates)
-6. **Wait for user approval**: do NOT implement or change labels before approval
-7. **On approval**: `gh issue edit {N} --add-label "agent-working" --remove-label "agent-ready"`, then start implementation
-8. **On rejection**: `git checkout main && git branch -D issue/{N}-*`, no label changes
+1. **Resolve issue**: find or validate issue number, confirm `agent-ready` label
+2. **Sync main**: pull remote, push any unpushed local commits first
+3. **Create branch**: `issue/{N}-{kebab-title}` from latest `main`
+4. **Draft plan (Explore sub-agent)**: spawn a sub-agent to analyze the issue against the codebase and project rules, returning a structured implementation plan
+5. **Review plan (Review sub-agent)**: spawn a separate sub-agent with fresh context to check completeness, convention compliance, missing concerns, and scope accuracy
+6. **Refine plan**: incorporate review feedback, compile final plan
+7. **Present to user**: output final plan with review findings addressed
+8. **Wait for user approval**: do NOT implement or change labels before approval
+9. **On approval**: `gh issue edit {N} --add-label "agent-working" --remove-label "agent-ready"`, then start implementation
+10. **On rejection**: delete branch, no label changes
 
 ## /issue-pr Procedure
 

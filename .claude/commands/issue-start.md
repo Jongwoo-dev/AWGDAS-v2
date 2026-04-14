@@ -12,7 +12,7 @@ This command handles **new `agent-ready` issues only**. For `changes-requested` 
 - If `$ARGUMENTS` is provided, use that issue number.
 - If `$ARGUMENTS` is empty, find the oldest `agent-ready` issue:
   ```
-  gh issue list --label "agent-ready" --state open --sort created --json number,title --limit 1
+  gh issue list --label "agent-ready" --state open --json number,title,createdAt --limit 10
   ```
   - If no `agent-ready` issues exist, **stop and inform the user**: "No agent-ready issues found."
   - If multiple exist, pick the oldest (first created). Inform the user which issue was selected.
@@ -49,31 +49,58 @@ git checkout -b issue/{number}-{kebab-title}
 ```
 Truncate the title portion to ~40 characters.
 
-### 7. Analyze the issue
-Read the issue body carefully. Identify:
-- **What** needs to be built
-- **Which layers** are affected (domain, repository, service, controller, migration, template, config)
-- **Dependencies** on existing code
-- **Ambiguities** or missing information — if found, flag them clearly
+### 7. Draft implementation plan (Explore sub-agent)
+Spawn an **Explore sub-agent** to analyze the issue against the current codebase. Provide the sub-agent with:
+- The full issue body
+- Instructions to read `CLAUDE.md`, `docs/harness/database-rules.md`, `docs/harness/testing-rules.md`
+- Instructions to explore the existing codebase for affected files, dependencies, and patterns
 
-### 8. Output implementation plan
-Present a structured plan:
+The sub-agent should return:
+- What needs to be built
+- Which layers are affected (domain, repository, service, controller, migration, template, config)
+- Dependencies on existing code
 - Files to create/modify (full paths)
 - Flyway migration(s) needed (with proposed filename following `V{yyyyMMddHHmmss}__{desc}.sql`)
 - Test files to create
 - Implementation order: migrations → domain → repository → service → DTO → controller → templates
 - Estimated scope: small (1-2 files) / medium (3-5 files) / large (6+ files)
 
-### 9. Wait for user approval
+### 8. Review plan (Review sub-agent)
+Spawn a **separate Review sub-agent** with a fresh context. Provide it with:
+- The original issue body
+- The draft plan from step 7
+- Instructions to read `CLAUDE.md`, `docs/harness/database-rules.md`, `docs/harness/testing-rules.md`
+
+The review sub-agent must check:
+- **Completeness**: Are all required layers covered? Are tests included for every new feature?
+- **Convention compliance**: Does the plan follow ddl-auto=validate, constructor injection, DTO boundaries, Flyway naming?
+- **Missing concerns**: Profile configuration, security implications, existing test compatibility, dependency conflicts?
+- **Scope accuracy**: Is the estimated scope realistic?
+
+The review sub-agent returns a list of issues found (may be empty).
+
+### 9. Refine plan
+Incorporate the review sub-agent's feedback into the plan. If significant issues were found, resolve them. Then compile the **final implementation plan**.
+
+### 10. Present final plan to user
+Output the final plan with:
+- Files to create/modify (full paths)
+- Flyway migration(s) needed
+- Test files to create
+- Implementation order
+- Estimated scope
+- Review findings that were addressed (if any)
+
+### 11. Wait for user approval
 **Do NOT implement anything or change any labels before explicit user approval.**
 
-### 10. On approval
+### 12. On approval
 ```
-gh issue edit $ARGUMENTS --add-label "agent-working" --remove-label "agent-ready"
+gh issue edit {number} --add-label "agent-working" --remove-label "agent-ready"
 ```
 Begin implementation following the approved plan.
 
-### 11. On rejection
+### 13. On rejection
 ```
 git checkout main
 git branch -D issue/{number}-{kebab-title}
