@@ -1,3 +1,9 @@
 spring:
   application:
     name: awgdas-v2
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
