@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>AWGDAS-v2</title>
+</head>
+<body>
+    <h1>AWGDAS-v2</h1>
+    <p>Autonomous Web Game Dev Agent System</p>
+
+    <div sec:authorize="isAnonymous()">
+        <a th:href="@{/login}">로그인</a>
+    </div>
+    <div sec:authorize="isAuthenticated()">
+        <p>환영합니다, <span sec:authentication="name"></span>님</p>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit">로그아웃</button>
+        </form>
+    </div>
+</body>
+</html>
