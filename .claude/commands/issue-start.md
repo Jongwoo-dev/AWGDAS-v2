@@ -100,7 +100,15 @@ gh issue edit {number} --add-label "agent-working" --remove-label "agent-ready"
 ```
 Begin implementation following the approved plan.
 
-### 13. On rejection
+### 13. Implementation complete
+After all code is committed and `./gradlew clean build` passes, ask the user:
+
+> "구현 완료. `/issue-pr {number}`을 호출할까요?"
+
+- If yes: invoke `/issue-pr {number}` (handles push, PR creation, and label transition to `agent-pr-created`)
+- If no: stop here. The user will handle PR creation manually or later.
+
+### 14. On rejection
 ```
 git checkout main
 git branch -D issue/{number}-{kebab-title}

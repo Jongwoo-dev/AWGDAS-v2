@@ -26,7 +26,7 @@ Human creates issue
 
 [Review]
   → Human reviews PR
-     → Approved: human merges, remove `agent-pr-created`
+     → Approved: human merges (`agent-pr-created` stays as-is on closed issue)
      → Changes needed: human adds `changes-requested`, removes `agent-pr-created`
 
 [Rework] (Phase 1: manual instruction / Phase 2: /issue-revise)
