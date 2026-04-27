@@ -64,7 +64,7 @@ git push -u origin HEAD
 
 ### 8. Create PR
 
-**언어 정책.** PR 제목과 본문은 **한국어**로 작성한다. 단, conventional commit prefix(`feat(scope):`, `fix:`, `refactor:` 등)는 그대로 유지하고 그 뒤의 설명만 한국어로 적는다. 예: `feat(harness): /issue-suggest 상태 신뢰성 체크 (#9)`. 코드 식별자, 파일 경로, 명령어, conventional prefix는 번역하지 않는다.
+**Language policy.** Write the PR title and body in **Korean**. Keep the conventional commit prefix (`feat(scope):`, `fix:`, `refactor:`, etc.) and only translate the description after it. Example: `feat(harness): /issue-suggest 상태 신뢰성 체크 (#9)`. Code identifiers, file paths, command names, and the conventional prefix are not translated.
 
 ```
 gh pr create \
@@ -103,7 +103,7 @@ EOF
   --base main
 ```
 
-체크리스트는 정확하게 채운다 — 검증된 항목만 체크하고, 적용 불가하거나 검증되지 않은 항목은 비워둔다. 적용 불가 항목은 항목 끝에 ` — N/A, 사유` 를 덧붙여도 된다.
+Fill in the checklist accurately — check items that were verified, leave unchecked items that don't apply or weren't verified. For non-applicable items, append ` — N/A, {reason}` to the item.
 
 ### 9. Update labels
 ```
