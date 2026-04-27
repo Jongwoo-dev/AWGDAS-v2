@@ -93,3 +93,9 @@ Resolution (by human):
 - `git diff main...HEAD` summary must be output before PR creation
 - If DB migration files are present, `Database Migrations` section in PR body is mandatory
 - One logical change per commit; prefer separate commits for migrations
+
+## Dogfooding 회고
+
+각 dogfooding 사이클에서 발견된 갭과 결정은 `docs/harness/dogfooding-NNN-YYYY-MM.md`로 기록한다.
+
+- [Cycle 001 (2026-04)](dogfooding-001-2026-04.md) — 첫 dogfooding, 8개 갭 발견 (RM-HARNESS-005/006/007 분리)

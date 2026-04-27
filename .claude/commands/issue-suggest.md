@@ -105,6 +105,13 @@ EOF
 
 If option 2 path was taken (no roadmap), omit `roadmap-ref` and add `inferred-from: docs/project-state` instead.
 
+**메타 항목 분기.** 후보가 하네스/프로세스 같은 메타 항목이라 도메인/인프라 코드와 직접 무관하면, body 템플릿의 두 섹션을 다음과 같이 채운다:
+
+- `## 작업 범위 (추정)` 항목을 `(메타 항목 — 파일 단위 범위 미정의)`로 적거나, 알려진 명령/문서 단위로 한 줄씩 적는다.
+- `## 관련 상태 문서`는 `(없음 — 하네스/메타 항목)`으로 적는다.
+
+이 분기는 후보의 description이 도메인/인프라 키워드와 매칭되지 않거나, step 4의 상태 컨텍스트 수집 결과가 비어있을 때 적용한다.
+
 ### 8. Update the roadmap item
 
 In the source roadmap file, append the new issue number to the item's `related-issues` list:

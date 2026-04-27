@@ -59,14 +59,16 @@ Spawn an **Explore sub-agent** to analyze the issue against the current codebase
   3. Use the `구현됨` / `미구현` / `관련 파일 경로` sections of those state docs to locate concrete code paths.
   4. Only fall back to broad codebase exploration (Glob/Grep across `src/`) if the state documents are insufficient — and report which doc was missing context so the human can update it later.
 
+**메타/프로세스 이슈 적응.** 이슈가 하네스 명령, 워크플로우, 회고 문서 등 메타 영역에 속해 도메인/인프라 코드와 무관할 수 있다. 그 경우 아래 결과 항목 중 다수가 적용되지 않는다(Flyway 마이그레이션 없음, JPA 계층 없음, 컨트롤러 없음, 테스트 파일 없음 등). 부모 에이전트 브리핑이 메타 이슈임을 명시했거나, 매칭되는 도메인/인프라 상태 문서가 없으면, 표준 결과 형식을 강요하지 말고 실제로 작업이 발생하는 영역(예: `.claude/commands/*.md`, `docs/harness/*.md`, `docs/roadmap/*.md`)만 보고한다. plan 템플릿이 안 맞는 사실 자체를 보고에 포함해도 좋다.
+
 The sub-agent should return:
 - What needs to be built
-- Which layers are affected (domain, repository, service, controller, migration, template, config)
+- Which layers are affected (domain, repository, service, controller, migration, template, config) — *메타 이슈는 해당 없음으로 명시*
 - Dependencies on existing code
 - Files to create/modify (full paths)
-- Flyway migration(s) needed (with proposed filename following `V{yyyyMMddHHmmss}__{desc}.sql`)
-- Test files to create
-- Implementation order: migrations → domain → repository → service → DTO → controller → templates
+- Flyway migration(s) needed (with proposed filename following `V{yyyyMMddHHmmss}__{desc}.sql`) — *메타 이슈는 생략*
+- Test files to create — *메타 이슈는 생략 가능*
+- Implementation order: migrations → domain → repository → service → DTO → controller → templates — *메타 이슈는 자유 순서*
 - Estimated scope: small (1-2 files) / medium (3-5 files) / large (6+ files)
 
 ### 8. Review plan (Review sub-agent)
@@ -102,9 +104,20 @@ Output the final plan with:
 **Do NOT implement anything or change any labels before explicit user approval.**
 
 ### 12. On approval
+
 ```
 gh issue edit {number} --add-label "agent-working" --remove-label "agent-ready"
 ```
+
+**로드맵 status 갱신.** 이슈 본문에서 `roadmap-ref: RM-{ID}` 줄을 추출. 활성 로드맵 파일들을 훑어 해당 ID의 항목을 찾고:
+
+- 항목 status가 `planned`면 `in-progress`로 flip.
+- 이미 `in-progress`/`done`/`deprecated`/`blocked`이면 그대로 둔다.
+- 로드맵 파일의 `last-updated`를 오늘 날짜로 갱신.
+- 이슈에 `roadmap-ref`가 없거나 (예: `inferred-from`만 있는 경우) 매칭되는 RM 항목이 없으면 skip.
+
+이 갱신은 별도 커밋으로 묶지 않아도 된다 — 구현 PR에 포함되어 머지된다.
+
 Begin implementation following the approved plan.
 
 ### 13. Implementation complete
