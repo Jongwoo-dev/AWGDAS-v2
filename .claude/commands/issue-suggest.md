@@ -82,6 +82,8 @@ Then ask: "이 중 어느 항목을 이슈로 등록할까요? (번호 또는 'n
 
 For each approved candidate:
 
+> **API 일시 실패 처리.** `gh issue create`가 HTTP 504/타임아웃 등으로 실패하면 멱등성 확인 후 1회 재시도. 정책: [`docs/harness/github-api-retry.md`](../../docs/harness/github-api-retry.md).
+
 ```
 gh issue create \
   --title "{RM-ID}: {short title}" \
