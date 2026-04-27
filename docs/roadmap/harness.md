@@ -50,6 +50,7 @@ last-updated: 2026-04-28
 ### RM-HARNESS-006: /issue-suggest 후보 랭킹 정교화
 
 - status: planned
+- related-issues: [#11]
 - depends-on: [RM-HARNESS-002]
 - 설명: "depends-on이 비어 있는 항목 우선" 규칙이 foundational vs. dependent 관계를 잡지 못함. dogfooding cycle 001에서 RM-004가 RM-003 위에 랭크된 사례(Finding 2). 알고리즘 재설계 — 어떤 신호를 추가할지부터 토론 필요.
 
