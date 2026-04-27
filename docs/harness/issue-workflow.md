@@ -99,3 +99,8 @@ Resolution (by human):
 각 dogfooding 사이클에서 발견된 갭과 결정은 `docs/harness/dogfooding-NNN-YYYY-MM.md`로 기록한다.
 
 - [Cycle 001 (2026-04)](dogfooding-001-2026-04.md) — 첫 dogfooding, 8개 갭 발견 (RM-HARNESS-005/006/007 분리)
+
+## See Also
+
+- [`metrics-rules.md`](metrics-rules.md) — `/issue-suggest` 후보 승인율과 `/issue-start` 부분 스캔 프록시 메트릭의 캡처 규칙 (RM-HARNESS-004)
+- [`github-api-retry.md`](github-api-retry.md) — `gh` CLI 일시 실패 처리 정책

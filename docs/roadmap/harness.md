@@ -36,7 +36,8 @@ last-updated: 2026-04-28
 
 ### RM-HARNESS-004: 비용/품질 메트릭
 
-- status: planned
+- status: in-progress
+- related-issues: [#13]
 - 설명: 부분 스캔이 실제로 토큰 사용량을 줄이는지 측정 가능한 형태로 기록. 자동 이슈 후보의 적중률(승인/거절 비율) 추적. 측정 방식 자체는 추후 정의.
 
 ### RM-HARNESS-005: /issue-suggest 상태 신뢰성
