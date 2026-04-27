@@ -74,19 +74,93 @@ Ask:
 - 제목 (한 줄)
 - 설명 (한두 문장 — 무엇을, 왜)
 - 의존성 (선택): 기존 RM ID 목록, 쉼표 구분
+- 부모 epic (선택): 자식 항목으로 추가할 경우 부모 RM ID
 - 초기 상태 (기본 `planned`. `blocked`도 허용. `in-progress`/`done`/`deprecated`는 여기서 설정 금지 — 작업 흐름에서 자연스럽게 전이)
 
-Validate every dependency ID exists in some active roadmap. If any is missing, warn and ask whether to remove it or proceed.
+Validate every dependency ID exists in some active roadmap. If any is missing, warn and ask whether to remove it or proceed. Validate the parent ID (if given) exists and is currently `epic: true`.
+
+### 5.5. Abstractness check
+
+If the user marked the item explicitly as a child (parent given), or already declared it as an epic, skip this step.
+
+Otherwise, judge whether the item looks too abstract for a single PR. Heuristics (any 1+ matches → suspect):
+
+- Title or description mentions multiple distinct domains (e.g., "auth + DB + UI", "전반", "전체", "시스템")
+- Description contains and-of-concerns ("가입과 로그인과 탈퇴", "X와 Y를 모두")
+- Estimated affected state docs span 3+ files
+- Title/description contains broad words: "시스템 구축", "전체 개편", "통합", "리팩토링 전반"
+
+If none match, proceed to step 6.
+
+If suspected abstract, **stop and ask the user** explicitly:
+
+```
+이 항목이 한 PR/이슈로 끝내기엔 좀 큰 것 같습니다.
+근거: {위 휴리스틱 중 어떤 게 걸렸는지 한 줄}
+
+어떻게 할까요?
+
+1. 더 좁혀서 다시 입력 — 새 제목/설명을 받습니다.
+2. 분해 제안 보기 — LLM이 자식 항목들로 쪼갤 안을 제시합니다 (사용자 승인 후 epic + 자식들 함께 등록).
+3. epic으로 그대로 등록 — 이 항목은 `epic: true`가 되고 /issue-suggest 후보에서 제외됩니다. 자식 항목은 나중에 `/roadmap-add`로 별도 추가합니다.
+```
+
+- **Option 1** → loop back to step 5 with fresh input.
+- **Option 2** → produce 2~5 child item proposals (each: 제목 + 1줄 설명 + 추정 의존성). Show them and ask for approval. On approval, treat current item as the epic and the proposed children as separate items to register in the same run. Each child gets its own RM ID (next available, sequential), `parent: RM-{epic-id}`, `status: planned`.
+- **Option 3** → mark current item with `epic: true`, proceed to step 6 with no children registered. User can add children later.
+
+Whichever option, never silently auto-decide — always confirm with the user.
 
 ### 6. Show the diff and confirm
 
-Display what will be appended to the target roadmap file:
+Display what will be appended to the target roadmap file. Examples:
 
+**Single item (non-epic):**
 ```markdown
 ### RM-HARNESS-005: {제목}
 
 - status: planned
 - depends-on: [RM-HARNESS-003]
+- 설명: {설명}
+```
+
+**Epic only (option 3):**
+```markdown
+### RM-HARNESS-005: {제목}
+
+- status: planned
+- epic: true
+- 설명: {설명}
+```
+
+**Epic + children (option 2):**
+```markdown
+### RM-HARNESS-005: {제목}
+
+- status: planned
+- epic: true
+- 설명: {설명}
+
+### RM-HARNESS-006: {자식 1 제목}
+
+- status: planned
+- parent: RM-HARNESS-005
+- 설명: {자식 1 설명}
+
+### RM-HARNESS-007: {자식 2 제목}
+
+- status: planned
+- parent: RM-HARNESS-005
+- depends-on: [RM-HARNESS-006]
+- 설명: {자식 2 설명}
+```
+
+**Child only (parent specified in step 5):**
+```markdown
+### RM-HARNESS-005: {제목}
+
+- status: planned
+- parent: RM-HARNESS-002
 - 설명: {설명}
 ```
 
@@ -111,3 +185,5 @@ Output:
 - **Never reuse an RM ID** even after deprecation/cleanup.
 - **Never silently change** unrelated items in the file. Only append.
 - **Don't create commits.** Leave the working tree dirty for the user to review and commit.
+- **Never auto-decompose without approval.** Step 5.5 option 2 always requires the user to approve the child list before writing.
+- **Don't nest epics.** If the user tries to add a child whose parent is itself an epic-of-an-epic, refuse and ask to flatten.

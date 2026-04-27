@@ -31,6 +31,42 @@
 - `deprecated` — 폐기, 참조는 유지 (cleanup 시점까지)
 - `blocked` — 외부 차단 요인, 후보에서 제외
 
+## Epic / 자식 항목
+
+큰 비전(여러 PR로 나뉠 수밖에 없는 단위)도 로드맵에 보존되어야 한다. 이를 위해 두 필드를 사용한다.
+
+- `epic: true` — 이 항목은 추상 비전이며, **`/issue-suggest`의 후보에서 제외**된다. 자식 항목만 후보가 된다.
+- `parent: RM-{ID}` — 이 항목이 어떤 epic의 자식인지 명시.
+
+**규칙:**
+- epic의 모든 자식이 `done`이면, epic도 자동으로 `done`이 된다 (`/issue-suggest`가 처리).
+- epic의 모든 자식이 `archived`/`deprecated`이면, epic도 `/roadmap-cleanup`의 archive 후보가 된다.
+- epic 자체에 `depends-on`을 둘 수 있다. 자식 항목은 별도로 `depends-on`을 가질 수 있다.
+- 자식 항목은 자체적인 RM ID를 가진다 (예: `RM-HARNESS-005`가 epic이면 자식은 `RM-HARNESS-006`, `RM-HARNESS-007` 등 — 부모-자식 관계는 ID 자체가 아니라 `parent` 필드로만 표현).
+- epic 안에 epic을 두는 다단계는 **금지** (단순화).
+
+**예시:**
+
+```markdown
+### RM-HARNESS-010: 회원 시스템 전체
+
+- status: planned
+- epic: true
+- 설명: 가입/로그인/탈퇴/프로필을 포함한 전체 회원 기능
+
+### RM-HARNESS-011: 회원 가입 플로우
+
+- status: planned
+- parent: RM-HARNESS-010
+- 설명: 이메일/비밀번호 가입, 검증 메일 발송
+
+### RM-HARNESS-012: DB 기반 인증으로 전환
+
+- status: planned
+- parent: RM-HARNESS-010
+- depends-on: [RM-HARNESS-011]
+```
+
 ## 신규 로드맵 추가 시
 
 1. `docs/roadmap/{name}.md` 생성 (frontmatter 포함)

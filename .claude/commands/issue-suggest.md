@@ -38,13 +38,16 @@ Present these three options:
 
 For each loaded roadmap file, find items where:
 - `status: planned`
+- **Not `epic: true`** — epics are abstract; only their children become candidates
 - All IDs listed in `depends-on` have `status: done` in any active roadmap
+- If the item has a `parent: RM-{ID}`, the parent must not be `archived`/`deprecated`
 - Not `blocked`
 
 Build a candidate list with up to **5 entries**, prioritized by:
 1. Items with no `depends-on` (true entry points)
 2. Items whose dependencies were most recently completed
-3. Order within the roadmap file (earlier items first)
+3. Children whose parent epic has the most progress (e.g., 2 of 3 children already done) — finishing an epic is preferred over starting a new one
+4. Order within the roadmap file (earlier items first)
 
 For each candidate, derive the **affected state docs** by reading `docs/project-state/INDEX.md` and matching the item's description against domain/infra one-line summaries. If unsure, list the candidates and let the user confirm scope.
 
@@ -116,7 +119,18 @@ Update `last-updated` in the roadmap frontmatter.
 
 Do NOT change status here if multiple candidates were registered for the same item — keep `planned` until the actual work begins (typically `/issue-start` will flip it).
 
-### 9. Report
+### 9. Roll up epic completion
+
+After updating items in step 8, scan all `epic: true` items across the loaded roadmaps. For each epic:
+
+1. Collect all items whose `parent: RM-{epic-id}` matches.
+2. If **every child has `status: done` or `status: archived`**, and at least one child exists, set the epic's `status` to `done` and add a `completed-at: {today}` line.
+3. If no children exist yet, do nothing — empty epic stays as-is.
+4. If any child is still `planned` / `in-progress` / `blocked`, do nothing.
+
+Output a one-line summary for each epic that flipped to done so the user sees the implicit roll-up.
+
+### 10. Report
 
 Output:
 - Created issue URLs

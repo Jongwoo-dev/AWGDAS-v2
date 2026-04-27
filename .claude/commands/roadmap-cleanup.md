@@ -18,7 +18,15 @@ Load each active roadmap file (or only the one matching the argument).
 
 For each loaded roadmap, extract every item header `### RM-{ROADMAP}-{NNN}:` whose body contains `status: deprecated`.
 
-If none found → output "정리 대상 없음." and stop.
+### 2.5. Find epics whose children are all deprecated/archived
+
+Additionally, scan every `epic: true` item in the loaded roadmaps. For each epic:
+
+1. Collect children (items with `parent: RM-{epic-id}`).
+2. If the epic has **at least one child** and **every child is either `deprecated` (in the active file) or already `archived` (i.e., not present in the active file but found in `docs/roadmap/archive/`)**, treat the epic as an archive candidate.
+3. Mark such epics as a "bundle" — when archiving, move the epic together with any of its still-`deprecated` children in one step.
+
+If neither step 2 nor 2.5 found anything → output "정리 대상 없음." and stop.
 
 ### 3. Check references for each candidate
 
@@ -43,7 +51,7 @@ Categorize each item:
 
 ### 4. Present the report
 
-Output a table:
+Output a table grouping epic bundles together:
 
 ```
 정리 후보:
@@ -59,9 +67,15 @@ Output a table:
   RM-HARNESS-097 — Mixed — needs decision
     references:
       - issue #15 (closed)
+
+  [bundle] RM-HARNESS-010 (epic) + children
+    RM-HARNESS-011 — Safe to archive
+    RM-HARNESS-012 — Safe to archive (already in archive/)
+    epic itself: references (none)
+    → 묶음으로 archive 가능
 ```
 
-For each "Safe" or "Mixed" item, ask the user whether to archive it.
+For each "Safe" or "Mixed" individual item, ask the user whether to archive it. For each epic bundle, ask once for the whole bundle (yes archives epic + remaining deprecated children together; no skips the bundle entirely).
 
 ### 5. On approval per item
 
