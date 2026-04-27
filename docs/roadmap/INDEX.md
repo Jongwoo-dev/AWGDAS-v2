@@ -14,6 +14,7 @@
 | 파일 | status | 한 줄 요약 |
 |------|--------|-----------|
 | [harness.md](harness.md) | active | 자동 개발 하네스 자체 발전 (부분 스캔, 자동 이슈, 자동 검증 등) |
+| [product.md](product.md) | active | AWGDAS 제품 본체 (게임 자동 생성 웹앱) |
 
 ## ID 부여 규칙
 
