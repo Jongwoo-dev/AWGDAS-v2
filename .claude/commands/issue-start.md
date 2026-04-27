@@ -53,7 +53,11 @@ Truncate the title portion to ~40 characters.
 Spawn an **Explore sub-agent** to analyze the issue against the current codebase. Provide the sub-agent with:
 - The full issue body
 - Instructions to read `CLAUDE.md`, `docs/harness/database-rules.md`, `docs/harness/testing-rules.md`
-- Instructions to explore the existing codebase for affected files, dependencies, and patterns
+- **Partial-scan instructions (mandatory order):**
+  1. Read `docs/project-state/INDEX.md` first.
+  2. From the INDEX, identify domain/infra documents related to the issue and read **only those**. Example: an auth-related issue reads `domains/auth.md` + `infra/security.md`; a DB schema issue reads `infra/database.md` + relevant `domains/*.md`.
+  3. Use the `구현됨` / `미구현` / `관련 파일 경로` sections of those state docs to locate concrete code paths.
+  4. Only fall back to broad codebase exploration (Glob/Grep across `src/`) if the state documents are insufficient — and report which doc was missing context so the human can update it later.
 
 The sub-agent should return:
 - What needs to be built
@@ -70,12 +74,14 @@ Spawn a **separate Review sub-agent** with a fresh context. Provide it with:
 - The original issue body
 - The draft plan from step 7
 - Instructions to read `CLAUDE.md`, `docs/harness/database-rules.md`, `docs/harness/testing-rules.md`
+- Instructions to read `docs/project-state/INDEX.md` and the same domain/infra state docs the Explore agent identified (for cross-checking against current state)
 
 The review sub-agent must check:
 - **Completeness**: Are all required layers covered? Are tests included for every new feature?
 - **Convention compliance**: Does the plan follow ddl-auto=validate, constructor injection, DTO boundaries, Flyway naming?
 - **Missing concerns**: Profile configuration, security implications, existing test compatibility, dependency conflicts?
 - **Scope accuracy**: Is the estimated scope realistic?
+- **State doc impact**: Which state docs (`docs/project-state/domains/*.md`, `docs/project-state/infra/*.md`) will need updating at PR time? List them.
 
 The review sub-agent returns a list of issues found (may be empty).
 
@@ -90,6 +96,7 @@ Output the final plan with:
 - Implementation order
 - Estimated scope
 - Review findings that were addressed (if any)
+- **State docs to update at PR time** (e.g., `docs/project-state/domains/auth.md`)
 
 ### 11. Wait for user approval
 **Do NOT implement anything or change any labels before explicit user approval.**
