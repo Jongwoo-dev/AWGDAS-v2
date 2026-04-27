@@ -31,6 +31,29 @@
 - `deprecated` — 폐기, 참조는 유지 (cleanup 시점까지)
 - `blocked` — 외부 차단 요인, 후보에서 제외
 
+## 의존 관계 선언 (`depends-on` / `blocks`)
+
+항목 간 선후 관계는 두 필드 중 어느 쪽으로든 선언할 수 있다.
+
+- `depends-on: [RM-...]` — 이 항목이 시작되려면 먼저 done 되어야 하는 항목들
+- `blocks: [RM-...]` — 이 항목이 done 되어야 시작 가능한 항목들 (`depends-on`의 dual)
+
+**규칙:**
+- 두 필드는 같은 관계의 두 방향. 한쪽만 적어도 `/issue-suggest`는 두 필드를 합쳐 양방향 그래프를 만든다.
+- 새 항목 추가 시 (`/roadmap-add`)는 양쪽을 모두 묻고 누락을 줄인다. 양쪽에 중복 선언해도 무방.
+- `/issue-suggest`의 후보 우선순위는 양방향 그래프의 **역참조 수**(이 항목을 가리키는 다른 planned 항목 수)를 핵심 신호로 사용. 역참조 수가 많을수록 foundational로 간주되어 위로 올라온다.
+
+**예시 (RM-003 → RM-004 관계를 두 방향으로 표현):**
+
+```markdown
+### RM-HARNESS-003: 워크플로우 검증
+- depends-on: [RM-HARNESS-001, RM-HARNESS-002]
+- blocks: [RM-HARNESS-004]
+
+### RM-HARNESS-004: 비용/품질 메트릭
+- depends-on: [RM-HARNESS-003]   # 위와 같은 관계를 반대 방향으로도 선언 (선택, 안전망)
+```
+
 ## Epic / 자식 항목
 
 큰 비전(여러 PR로 나뉠 수밖에 없는 단위)도 로드맵에 보존되어야 한다. 이를 위해 두 필드를 사용한다.
