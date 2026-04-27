@@ -31,10 +31,56 @@ Present these three options:
 ```
 
 - Option 1 → end this command, instruct the user to run `/roadmap-add` first.
-- Option 2 → skip step 3, jump to step 4 with a single "best-guess" candidate derived from `docs/project-state/`'s `미구현 / TODO` sections; clearly mark it as inferred (no roadmap-ref).
+- Option 2 → skip steps 3–4, jump to step 5 with a single "best-guess" candidate derived from `docs/project-state/`'s `미구현 / TODO` sections; clearly mark it as inferred (no roadmap-ref).
 - Option 3 → stop.
 
-### 3. Extract candidates
+### 3. Check roadmap status reliability
+
+Before extracting candidates, scan loaded roadmap items for potential mismatches between the `status` field and reality signals. Goal: surface stale `in-progress` markers and prematurely-marked items so the user can fix the roadmap before `/issue-suggest` proposes new work on top of an inconsistent state. Origin: Finding 1 of `docs/harness/dogfooding-001-2026-04.md` (`RM-HARNESS-002` was `in-progress` while all its described commands already existed).
+
+**Scope.** Only check items with `status ∈ {planned, in-progress}`. Skip `done` / `deprecated` / `blocked` (out of scope for v1).
+
+**Signal A — command file existence.** For each in-scope item, extract `/command-name` patterns from the description (regex: ``\`/[a-z][a-z0-9-]*\``, matching kebab-case slugs in backticks). For each match:
+
+- Check whether `.claude/commands/{command-name}.md` exists.
+- Apply the **modification heuristic**: if the description text within ~30 chars before or after the match contains modification verbs (`보강`, `수정`, `개선`, `강화`), label that match as `(수정 대상으로 추정)`. Do NOT suppress — just label, so the user sees it but isn't shamed by a false-positive warning.
+
+An item flags Signal A when **all** extracted command files exist AND **at least one** match is not labeled as 수정 대상.
+
+**Signal B — related-issues PR merge state.** For each in-scope item where `related-issues` is non-empty:
+
+- If the list has **more than 3 entries**, skip Signal B for that item and append a one-line note in the warning (`Signal B skipped: >3 related-issues — cost guard`).
+- Otherwise call `gh pr view {N} --json merged --jq .merged` for each entry. Read-only call — apply the lookup retry policy from `docs/harness/github-api-retry.md` (5s wait + 1 retry on transient failure).
+- If **all** related-issues are merged, the item flags Signal B.
+
+**Aggregate and present.** Collect all flagged items into a single batched warning. If the list is empty, proceed silently to step 4.
+
+If any flags exist, output:
+
+```
+[ 로드맵 status 신뢰성 경고 ]
+다음 항목에서 status와 산출물 신호가 불일치할 수 있습니다.
+
+- RM-HARNESS-002 (in-progress): 명시된 명령이 모두 존재 → done 가능성
+  · /issue-suggest ✓, /roadmap-add ✓, /roadmap-cleanup ✓
+- RM-HARNESS-005 (in-progress): 명시된 명령이 수정 대상으로 보임 (보강/수정 키워드)
+  · /issue-suggest (수정 대상으로 추정)
+- RM-HARNESS-007 (in-progress): related-issues 모두 머지됨 → done 가능성
+  · #7 (merged), #8 (merged)
+
+자동 갱신은 하지 않습니다. 계속 후보 추출을 진행할까요? (yes / no)
+```
+
+**User decision.**
+- `yes` → proceed to step 4 (extract candidates).
+- `no` → stop the entire flow. The user updates the roadmap manually and re-runs `/issue-suggest`.
+
+**알려진 한계 (v1).**
+- 설명에 명령이 명시되지 않고 PR 제목/본문에만 기록된 경우는 미검출 (참조 문서 존재 검사는 v2로 연기).
+- `/issue-start` step 12가 status를 미리 `in-progress`로 flip한 직후 자기참조 false positive 가능 — 수정 휴리스틱이 부분 완화하지만 완전히 막진 못함. 사용자가 `yes`로 패스 가능.
+- "수정 대상으로 추정" 라벨은 보조 정보일 뿐 — 최종 판단은 사용자.
+
+### 4. Extract candidates
 
 For each loaded roadmap file, find items where:
 - `status: planned`
@@ -51,7 +97,7 @@ Build a candidate list with up to **5 entries**, prioritized by:
 
 For each candidate, derive the **affected state docs** by reading `docs/project-state/INDEX.md` and matching the item's description against domain/infra one-line summaries. If unsure, list the candidates and let the user confirm scope.
 
-### 4. Read state context for each candidate
+### 5. Read state context for each candidate
 
 For each candidate, open the state docs identified above and capture:
 - Existing implementations to reuse
@@ -60,7 +106,7 @@ For each candidate, open the state docs identified above and capture:
 
 This becomes the issue body's "관련 상태" section.
 
-### 5. Present candidates to the user
+### 6. Present candidates to the user
 
 Output for review (one block per candidate):
 
@@ -74,11 +120,11 @@ Output for review (one block per candidate):
 
 Then ask: "이 중 어느 항목을 이슈로 등록할까요? (번호 또는 'none')"
 
-### 6. Wait for user approval
+### 7. Wait for user approval
 
 **Do NOT call `gh issue create` before explicit user approval.** If user says "none", stop without changes.
 
-### 7. Create the issue(s)
+### 8. Create the issue(s)
 
 For each approved candidate:
 
@@ -112,9 +158,9 @@ If option 2 path was taken (no roadmap), omit `roadmap-ref` and add `inferred-fr
 - `## 작업 범위 (추정)` 항목을 `(메타 항목 — 파일 단위 범위 미정의)`로 적거나, 알려진 명령/문서 단위로 한 줄씩 적는다.
 - `## 관련 상태 문서`는 `(없음 — 하네스/메타 항목)`으로 적는다.
 
-이 분기는 후보의 description이 도메인/인프라 키워드와 매칭되지 않거나, step 4의 상태 컨텍스트 수집 결과가 비어있을 때 적용한다.
+이 분기는 후보의 description이 도메인/인프라 키워드와 매칭되지 않거나, step 5의 상태 컨텍스트 수집 결과가 비어있을 때 적용한다.
 
-### 8. Update the roadmap item
+### 9. Update the roadmap item
 
 In the source roadmap file, append the new issue number to the item's `related-issues` list:
 
@@ -128,9 +174,9 @@ Update `last-updated` in the roadmap frontmatter.
 
 Do NOT change status here if multiple candidates were registered for the same item — keep `planned` until the actual work begins (typically `/issue-start` will flip it).
 
-### 9. Roll up epic completion
+### 10. Roll up epic completion
 
-After updating items in step 8, scan all `epic: true` items across the loaded roadmaps. For each epic:
+After updating items in step 9, scan all `epic: true` items across the loaded roadmaps. For each epic:
 
 1. Collect all items whose `parent: RM-{epic-id}` matches.
 2. If **every child has `status: done` or `status: archived`**, and at least one child exists, set the epic's `status` to `done` and add a `completed-at: {today}` line.
@@ -139,7 +185,7 @@ After updating items in step 8, scan all `epic: true` items across the loaded ro
 
 Output a one-line summary for each epic that flipped to done so the user sees the implicit roll-up.
 
-### 10. Report
+### 11. Report
 
 Output:
 - Created issue URLs
@@ -150,5 +196,6 @@ Output:
 
 - **Never auto-create an issue without approval.** Even if the candidate looks obvious.
 - **Never delete or rename existing RM IDs** when updating roadmap files. Append-only.
-- **Never propose a `done` or `deprecated` item.** They are filtered out in step 3.
+- **Never propose a `done` or `deprecated` item.** They are filtered out in step 4.
 - **If two candidates collide** (same affected state docs), warn the user before registering both.
+- **Never auto-update a roadmap status from the reliability check (step 3).** Warning only — user must update manually.
