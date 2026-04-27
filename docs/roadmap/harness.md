@@ -28,7 +28,8 @@ last-updated: 2026-04-28
 
 ### RM-HARNESS-003: 워크플로우 검증 / dogfooding
 
-- status: in-progress
+- status: done
+- completed-at: 2026-04-28
 - related-issues: [#5]
 - depends-on: [RM-HARNESS-001, RM-HARNESS-002]
 - 설명: 실제 이슈 1~2개를 `/issue-suggest` → `/issue-start` → 구현 → `/issue-pr` 흐름으로 한 번 돌려 보고, 발견된 갭(상태 문서 누락 항목, 후보 추출 정확도, 비용)을 수정.
