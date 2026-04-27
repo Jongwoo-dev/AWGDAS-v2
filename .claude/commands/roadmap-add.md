@@ -70,14 +70,26 @@ Read the target roadmap file. Find every header matching `### RM-{ROADMAP}-(\d+)
 
 ### 5. Gather item details from the user
 
+**관계 누락 방지 (의존성 질문 전 사전 안내).** 활성 로드맵의 `planned`/`in-progress` 항목을 한 줄씩 출력해 후보를 노출한다 — `/issue-suggest`의 후보 랭킹은 양방향 의존 그래프(`depends-on` + `blocks` 역참조 수)에 의존하므로, 관계 누락이 곧 미스랭크로 이어진다. 예:
+
+```
+현재 planned/in-progress 항목 (관계 후보):
+  - RM-HARNESS-004 (비용/품질 메트릭)
+  - RM-HARNESS-006 (/issue-suggest 후보 랭킹 정교화)
+```
+
 Ask:
 - 제목 (한 줄)
 - 설명 (한두 문장 — 무엇을, 왜)
-- 의존성 (선택): 기존 RM ID 목록, 쉼표 구분
+- **의존성 (선택, `depends-on`)**: 이 항목이 시작되려면 먼저 done 되어야 하는 기존 RM ID 목록, 쉼표 구분
+- **차단 (선택, `blocks`)**: 이 항목이 done 되어야 시작 가능한 기존 `planned`/`in-progress` 항목 RM ID 목록, 쉼표 구분 (`depends-on`의 dual — 양쪽에 중복 선언 가능)
 - 부모 epic (선택): 자식 항목으로 추가할 경우 부모 RM ID
 - 초기 상태 (기본 `planned`. `blocked`도 허용. `in-progress`/`done`/`deprecated`는 여기서 설정 금지 — 작업 흐름에서 자연스럽게 전이)
 
-Validate every dependency ID exists in some active roadmap. If any is missing, warn and ask whether to remove it or proceed. Validate the parent ID (if given) exists and is currently `epic: true`.
+Validate:
+- 모든 `depends-on` ID가 활성 로드맵에 존재할 것. 빠진 게 있으면 경고하고 제거할지 진행할지 묻는다.
+- 모든 `blocks` ID가 활성 로드맵에 존재하고 `planned`/`in-progress` 상태일 것. 이미 `done`/`deprecated`인 항목을 차단할 수는 없다.
+- 부모 ID가 주어지면 존재하고 `epic: true`인지 확인.
 
 ### 5.5. Abstractness check
 
@@ -121,8 +133,11 @@ Display what will be appended to the target roadmap file. Examples:
 
 - status: planned
 - depends-on: [RM-HARNESS-003]
+- blocks: [RM-HARNESS-007]
 - 설명: {설명}
 ```
+
+`blocks` 줄은 차단 대상이 있을 때만 추가 (없으면 생략).
 
 **Epic only (option 3):**
 ```markdown

@@ -89,11 +89,23 @@ For each loaded roadmap file, find items where:
 - If the item has a `parent: RM-{ID}`, the parent must not be `archived`/`deprecated`
 - Not `blocked`
 
+**역참조 그래프 구축.** 우선순위 산정 전, 활성 로드맵의 모든 항목을 훑어 양방향 의존 그래프를 만든다:
+
+- 항목 X의 `depends-on: [A, B]`는 A→X, B→X 엣지로 본다 (A가 X 앞에 와야 함).
+- 항목 X의 `blocks: [C, D]`는 X→C, X→D 엣지로 본다 (X가 C, D 앞에 와야 함).
+- 두 표현은 동일한 관계의 두 방향 — 합쳐서 단일 그래프로 처리. 중복 엣지는 한 번만 카운트.
+
+각 후보 항목 Y에 대해 **`refCount(Y)` = Y → ? 엣지의 수, 단 도착점이 `planned` 또는 `in-progress` 상태인 경우만 카운트**. 즉 "Y가 done 되어야 풀리는, 아직 살아 있는 항목 수". `done`/`deprecated`/`blocked`/`archived` 도착점은 무시 (foundational 신호로 무의미).
+
+스키마 배경: `docs/roadmap/INDEX.md`의 "의존 관계 선언" 섹션 참고.
+
 Build a candidate list with up to **5 entries**, prioritized by:
-1. Items with no `depends-on` (true entry points)
-2. Items whose dependencies were most recently completed
+1. **`refCount` 내림차순** — foundational(다른 항목의 토대) 항목 우선. dogfooding cycle 001 Finding 2의 RM-004/RM-003 미스랭크를 직접 해결.
+2. Items whose dependencies were most recently completed (deps의 `completed-at` 최댓값으로 비교; deps 없으면 `epoch`로 간주해 가장 낮음)
 3. Children whose parent epic has the most progress (e.g., 2 of 3 children already done) — finishing an epic is preferred over starting a new one
 4. Order within the roadmap file (earlier items first)
+
+> ⚠️ 이전 규칙 "Items with no `depends-on`"(빈 deps 우선)는 제거됨. 빈 deps는 foundational의 신호가 아니라 단순 "선언 누락" 가능성이 더 큼. dogfooding cycle 001 Finding 2 참고.
 
 For each candidate, derive the **affected state docs** by reading `docs/project-state/INDEX.md` and matching the item's description against domain/infra one-line summaries. If unsure, list the candidates and let the user confirm scope.
 
@@ -115,8 +127,11 @@ Output for review (one block per candidate):
   설명: ...
   관련 상태 문서: docs/project-state/...
   의존성 충족: RM-HARNESS-001 (done)
+  refCount: 2 (RM-HARNESS-003, RM-HARNESS-004 가 이 항목을 가리킴)
   추정 범위: small | medium | large
 ```
+
+`refCount`가 0인데 다른 후보가 1+이면, 양쪽 모두 표시해 사용자가 ranking 근거를 볼 수 있도록 한다.
 
 Then ask: "이 중 어느 항목을 이슈로 등록할까요? (번호 또는 'none')"
 
