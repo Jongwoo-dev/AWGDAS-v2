@@ -49,7 +49,8 @@ last-updated: 2026-04-28
 
 ### RM-HARNESS-006: /issue-suggest 후보 랭킹 정교화
 
-- status: in-progress
+- status: done
+- completed-at: 2026-04-28
 - related-issues: [#11]
 - depends-on: [RM-HARNESS-002]
 - blocks: [RM-HARNESS-004]
