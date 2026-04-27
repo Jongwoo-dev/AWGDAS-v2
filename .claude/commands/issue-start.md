@@ -17,6 +17,8 @@ This command handles **new `agent-ready` issues only**. For `changes-requested` 
   - If no `agent-ready` issues exist, **stop and inform the user**: "No agent-ready issues found."
   - If multiple exist, pick the oldest (first created). Inform the user which issue was selected.
 
+> **API 일시 실패 처리.** `gh issue list`/`gh issue view` 같은 읽기 호출은 일시 실패 시 5초 대기 후 1회 재시도(idempotency check 불필요). 정책: [`docs/harness/github-api-retry.md`](../../docs/harness/github-api-retry.md).
+
 ### 2. Read the issue
 ```
 gh issue view {number} --json number,title,body,labels,assignees,comments
@@ -108,6 +110,8 @@ Output the final plan with:
 ```
 gh issue edit {number} --add-label "agent-working" --remove-label "agent-ready"
 ```
+
+> **API 일시 실패 처리.** `gh issue edit`은 mutation이므로 일시 실패 시 라벨 상태를 먼저 조회해 이미 적용/해제되었는지 확인 후 재시도. 정책: [`docs/harness/github-api-retry.md`](../../docs/harness/github-api-retry.md).
 
 **로드맵 status 갱신.** 이슈 본문에서 `roadmap-ref: RM-{ID}` 줄을 추출. 활성 로드맵 파일들을 훑어 해당 ID의 항목을 찾고:
 
