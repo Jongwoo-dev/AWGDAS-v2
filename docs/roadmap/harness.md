@@ -53,7 +53,8 @@ last-updated: 2026-04-28
 
 ### RM-HARNESS-007: /issue-suggest GitHub API 재시도
 
-- status: in-progress
+- status: done
+- completed-at: 2026-04-28
 - related-issues: [#7]
 - depends-on: [RM-HARNESS-002]
 - 설명: `gh issue create` 등 GitHub API 호출이 일시 실패(예: HTTP 504)할 경우의 재시도 정책을 `/issue-suggest`/`/issue-start`에 명시. 멱등성 확인(목록 조회 후 재시도) 포함. dogfooding cycle 001 Finding 5.
