@@ -175,6 +175,20 @@ If option 2 path was taken (no roadmap), omit `roadmap-ref` and add `inferred-fr
 
 이 분기는 후보의 description이 도메인/인프라 키워드와 매칭되지 않거나, step 5의 상태 컨텍스트 수집 결과가 비어있을 때 적용한다.
 
+**Append candidate-acceptance metric.** Right after `gh issue create` returns success for a candidate, append one JSONL line to `docs/harness/metrics/issue-suggest-candidates.jsonl`:
+
+```jsonl
+{"date":"<UTC ISO 8601>","roadmap_filter":<string|null>,"candidates_presented":<N>,"candidate_summaries":[...],"accepted_index":<i>,"issue_created":<#N>,"roadmap_ref":"<RM-ID>|null"}
+```
+
+- `roadmap_filter` is the `$ARGUMENTS` value passed to `/issue-suggest` (or `null` if empty).
+- `candidates_presented` and `candidate_summaries` reflect the list shown in step 6 (not just the accepted one).
+- For the option-2 (inferred) path, set `roadmap_ref` to `null`.
+- If the user said `none` in step 7, do NOT write a line. The metric only records actual acceptances.
+- If `gh issue create` failed even after the retry policy and no issue was created, do NOT write a line.
+
+Schema and rationale: [`docs/harness/metrics-rules.md`](../../docs/harness/metrics-rules.md).
+
 ### 9. Update the roadmap item
 
 In the source roadmap file, append the new issue number to the item's `related-issues` list:

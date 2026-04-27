@@ -72,6 +72,27 @@ The sub-agent should return:
 - Test files to create — *메타 이슈는 생략 가능*
 - Implementation order: migrations → domain → repository → service → DTO → controller → templates — *메타 이슈는 자유 순서*
 - Estimated scope: small (1-2 files) / medium (3-5 files) / large (6+ files)
+- **`state_docs_analysis` block** — required for partial-scan metrics (see `docs/harness/metrics-rules.md`). Format:
+  ```
+  state_docs_analysis:
+  - read: [docs/project-state/INDEX.md, docs/project-state/domains/auth.md, ...]
+  - broadened: false
+  - notes: 빈 문자열 또는 한 줄 메모 (예: "no domain doc matched, meta issue")
+  ```
+  `read`는 Explore가 실제로 read한 `docs/project-state/*` / `docs/harness/*` 경로. `broadened`는 `src/` 전반에 Glob/Grep을 돌렸는지. 메타 이슈여서 도메인 문서가 매칭되지 않았더라도 INDEX는 read 했을 것이므로 빈 배열은 거의 발생하지 않는다.
+
+### 7-bis. Append partial-scan metric line
+
+Right after the Explore sub-agent returns (regardless of whether the user later approves or rejects the plan in step 11), append one JSONL line to `docs/harness/metrics/issue-start-partial-scans.jsonl`.
+
+```jsonl
+{"date":"<UTC ISO 8601>","issue":<N>,"state_docs_read":[...],"state_docs_available":<count>,"broadened_to_codebase":<bool>,"notes":"<string>"}
+```
+
+- `state_docs_available` = number of rows in the 도메인 + 인프라 tables of `docs/project-state/INDEX.md` (excluding INDEX.md itself).
+- If the Explore output is missing the `state_docs_analysis` block, fill `state_docs_read=[]`, `broadened_to_codebase=false`, `notes="state_docs_analysis missing in Explore output"`, and surface a one-line warning to the user.
+
+Schema and rationale: [`docs/harness/metrics-rules.md`](../../docs/harness/metrics-rules.md).
 
 ### 8. Review plan (Review sub-agent)
 Spawn a **separate Review sub-agent** with a fresh context. Provide it with:
