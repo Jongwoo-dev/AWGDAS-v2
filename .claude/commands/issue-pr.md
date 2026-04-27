@@ -63,44 +63,47 @@ git push -u origin HEAD
 ```
 
 ### 8. Create PR
+
+**언어 정책.** PR 제목과 본문은 **한국어**로 작성한다. 단, conventional commit prefix(`feat(scope):`, `fix:`, `refactor:` 등)는 그대로 유지하고 그 뒤의 설명만 한국어로 적는다. 예: `feat(harness): /issue-suggest 상태 신뢰성 체크 (#9)`. 코드 식별자, 파일 경로, 명령어, conventional prefix는 번역하지 않는다.
+
 ```
 gh pr create \
-  --title "{concise title}" \
+  --title "{conventional prefix}: {간결한 한국어 설명}" \
   --body "$(cat <<'EOF'
-## Summary
-- {bullet 1}
-- {bullet 2}
+## 요약
+- {불릿 1}
+- {불릿 2}
 
-## Changes
-{list key files added/modified}
+## 변경 사항
+{추가/수정된 주요 파일 목록}
 
-## Database Migrations
-{list migration files with description, or "None"}
+## 데이터베이스 마이그레이션
+{마이그레이션 파일과 간단한 설명, 없으면 "없음"}
 
-## State Docs Updated
-{list updated docs/project-state files, or "None"}
+## 상태 문서 갱신
+{갱신된 docs/project-state 파일 목록, 없으면 "없음"}
 
-## Testing
-{summary of tests added}
+## 테스트
+{추가한 테스트 요약}
 
-## Issue
+## 이슈
 Closes #{N}
 
-## Checklist
-- [x] Build passes (`./gradlew build`)
-- [x] All tests pass
-- [ ] Migration naming follows convention (`V{yyyyMMddHHmmss}__{desc}.sql`)
-- [ ] No TODO comments in committed code
-- [ ] No debug artifacts (System.out.println, commented-out code)
-- [ ] DTOs used at controller boundary (entities not exposed)
-- [ ] Constructor injection only (no field `@Autowired`)
-- [ ] Project state docs updated (`docs/project-state/`)
+## 체크리스트
+- [x] 빌드 통과 (`./gradlew build`)
+- [x] 모든 테스트 통과
+- [ ] 마이그레이션 파일명 규칙 준수 (`V{yyyyMMddHHmmss}__{desc}.sql`)
+- [ ] 커밋된 코드에 TODO 주석 없음
+- [ ] 디버그 산출물 없음 (System.out.println, 주석 처리된 코드)
+- [ ] 컨트롤러 경계에서 DTO 사용 (엔티티 미노출)
+- [ ] 생성자 주입만 사용 (필드 `@Autowired` 금지)
+- [ ] 프로젝트 상태 문서 갱신 (`docs/project-state/`)
 EOF
 )" \
   --base main
 ```
 
-Fill in the checklist accurately — check items that were verified, leave unchecked items that don't apply or weren't verified.
+체크리스트는 정확하게 채운다 — 검증된 항목만 체크하고, 적용 불가하거나 검증되지 않은 항목은 비워둔다. 적용 불가 항목은 항목 끝에 ` — N/A, 사유` 를 덧붙여도 된다.
 
 ### 9. Update labels
 ```
