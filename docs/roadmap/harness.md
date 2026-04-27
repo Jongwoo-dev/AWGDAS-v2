@@ -41,7 +41,8 @@ last-updated: 2026-04-28
 
 ### RM-HARNESS-005: /issue-suggest 상태 신뢰성
 
-- status: in-progress
+- status: done
+- completed-at: 2026-04-28
 - related-issues: [#9]
 - depends-on: [RM-HARNESS-002]
 - 설명: 로드맵 항목의 `status` 필드와 실제 산출물(예: 명령 파일 존재, 관련 PR 머지 등) 사이 불일치를 `/issue-suggest`가 감지·경고하도록 보강. RM-HARNESS-003 dogfooding cycle 001에서 RM-002가 `in-progress`로 남아 있다 수동 갱신된 사례(Finding 1, `docs/harness/dogfooding-001-2026-04.md` 참고).
