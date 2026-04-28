@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>AWGDAS-v2 — 관리자</title>
+</head>
+<body>
+    <h1>관리자 페이지</h1>
+    <p>관리자 (<span sec:authentication="name"></span>) 로그인 상태입니다.</p>
+    <p><a th:href="@{/}">홈으로</a></p>
+</body>
+</html>
