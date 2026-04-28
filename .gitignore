@@ -38,6 +38,7 @@ out/
 
 ### Claude Code ###
 .claude/settings.local.json
+.claude/*.lock
 
 ### Secrets ###
 config/secrets-*.yaml
