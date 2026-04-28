@@ -10,7 +10,7 @@ roadmap-refs: [RM-PRODUCT-019, RM-PRODUCT-023]
 
 ## 구현됨
 
-- `application.yaml`: `spring.jpa.hibernate.ddl-auto=validate`, `spring.flyway.enabled=true`, `spring.jpa.open-in-view=false`
+- `application.yaml`: `spring.jpa.hibernate.ddl-auto=validate`, `spring.flyway.enabled=true`, `spring.jpa.open-in-view=false`, `spring.profiles.active=local` (default — `./gradlew bootRun`만으로 local 프로파일 활성. 운영 배포 시 `SPRING_PROFILES_ACTIVE` 환경변수로 override)
 - `application-local.yaml`: H2 드라이버 지정, h2-console 활성화 (`/h2-console`), 접속 정보는 `config/secrets-local.yaml`에서 주입
 - `application-test.yaml`: H2 드라이버, 접속 정보는 `config/secrets-test.yaml`에서 주입
 - **H2 PostgreSQL 호환 모드**: 두 secrets yaml 모두 `MODE=PostgreSQL`로 설정 — 마이그레이션 SQL이 H2/PostgreSQL 양쪽에서 동일하게 동작
