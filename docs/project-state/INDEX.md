@@ -13,15 +13,15 @@
 
 | 파일 | status | 한 줄 요약 |
 |------|--------|-----------|
-| [domains/auth.md](domains/auth.md) | in-progress | dev-login만 구현 (인메모리 dev/dev), 실제 OAuth/회원가입 미구현 |
+| [domains/auth.md](domains/auth.md) | in-progress | DB 기반 로그인 + 초기 관리자(admin/admin123), 회원가입/OAuth 미구현 |
 | [domains/home.md](domains/home.md) | stable | 인증 불필요 홈 페이지, 로직 없음 |
 
 ## 인프라
 
 | 파일 | status | 한 줄 요약 |
 |------|--------|-----------|
-| [infra/database.md](infra/database.md) | not-started | Flyway 활성화, 마이그레이션 0개, 엔티티 0개 |
-| [infra/security.md](infra/security.md) | in-progress | Spring Security formLogin, 인메모리 사용자 |
+| [infra/database.md](infra/database.md) | in-progress | Flyway 마이그레이션 2개(users, admin seed), JPA 엔티티 1개(User) |
+| [infra/security.md](infra/security.md) | in-progress | Spring Security formLogin, DB 기반 UserDetailsService, /admin/** ROLE_ADMIN |
 | [infra/testing.md](infra/testing.md) | in-progress | WebMvcTest + SpringBootTest 패턴, 통합/단위 분리 |
 
 ## 컨벤션

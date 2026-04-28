@@ -53,4 +53,26 @@ class SecurityConfigIntegrationTest {
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection());
     }
+
+    @Test
+    @DisplayName("ROLE_ADMIN은 /admin에 접근할 수 있다")
+    void admin_canAccessAdmin() throws Exception {
+        mockMvc.perform(get("/admin").with(user("admin").roles("ADMIN")))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("ROLE_USER가 /admin 접근 시 403")
+    void user_forbiddenOnAdmin() throws Exception {
+        mockMvc.perform(get("/admin").with(user("alice").roles("USER")))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("익명 사용자가 /admin 접근 시 로그인으로 리다이렉트")
+    void anonymous_redirectedFromAdmin() throws Exception {
+        mockMvc.perform(get("/admin"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/login"));
+    }
 }
