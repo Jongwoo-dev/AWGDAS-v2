@@ -45,3 +45,6 @@ config/secrets-*.yaml
 application-prod.yaml
 *.pem
 *.key
+
+### H2 (local file mode) ###
+data/awgdas-local.*

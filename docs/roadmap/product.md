@@ -166,7 +166,7 @@ last-updated: 2026-04-29
 
 ### RM-PRODUCT-023: 로컬 H2 파일 모드 전환
 
-- status: planned
+- status: in-progress
 - blocks: [RM-PRODUCT-020, RM-PRODUCT-021]
 - related-issues: [#17]
 - 설명: 로컬 개발용 H2를 in-memory(`jdbc:h2:mem:`)에서 파일 모드(`jdbc:h2:file:`)로 전환. 재시작 후에도 관리자/하위 계정/할당량 등 영속 데이터가 유지되도록. `secrets-local.yaml`의 URL 변경 + 생성되는 DB 파일 경로(예: `data/awgdas-local.*`)를 `.gitignore`에 추가. Flyway 영향: 정상 동작이지만, 메모리 모드와 달리 이미 적용된 migration 파일을 수정하면 checksum mismatch로 부팅 실패 — `database-rules.md`에 "기존 V 수정 금지(새 V 추가만), 어쩔 수 없이 수정 시 로컬 DB 파일 삭제" 안내 추가.

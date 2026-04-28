@@ -99,3 +99,38 @@ CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 - Do not manually edit the `flyway_schema_history` table
 - Do not rename or reorder existing migration files
 - Do not put DML (INSERT/UPDATE/DELETE) in schema migration files unless absolutely necessary
+
+## Local H2 File Mode (issue #17 / RM-PRODUCT-023)
+
+The `local` profile uses **H2 in file mode** so data survives app restarts (admin account, sub-accounts, quotas, etc.). The `test` profile remains in-memory.
+
+### Profile summary
+
+| Profile | URL | Persistence |
+|---------|-----|-------------|
+| `local` | `jdbc:h2:file:./data/awgdas-local;MODE=PostgreSQL;...` | Files in `./data/`, survives restart |
+| `test` | `jdbc:h2:mem:testdb;MODE=PostgreSQL;...` | In-memory, fresh per JVM |
+| `prod` (future) | `jdbc:postgresql://...` | PostgreSQL |
+
+H2 creates the `./data/` directory automatically on first run — no manual setup needed.
+The generated files (`data/awgdas-local.mv.db`, `data/awgdas-local.trace.db`, `data/awgdas-local.lock.db`) are excluded via `.gitignore`.
+
+### Critical: do NOT modify applied migration files
+
+In file mode, Flyway records each applied migration's checksum in `flyway_schema_history`. If you edit an already-applied `V*.sql` file, the next boot fails with:
+
+```
+Validate failed: Migrations have failed validation
+Migration checksum mismatch for migration version 20260428155500
+-> Applied to database : <old checksum>
+-> Resolved locally    : <new checksum>
+```
+
+**Rule (file-mode specific reinforcement of the existing rule above):** never edit an existing `V*.sql`. Always add a new `V` file.
+
+If you absolutely must rewrite history during local development (e.g., the migration was wrong and never reached anyone else):
+1. Stop the app.
+2. Delete the local H2 database: `rm data/awgdas-local.*`
+3. Restart — Flyway re-applies every `V*.sql` from scratch.
+
+This recovery is **local-only** and never applies to shared environments. In production / shared dev DBs, ship a corrective `V` file instead.
