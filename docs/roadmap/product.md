@@ -139,7 +139,7 @@ last-updated: 2026-04-29
 
 ### RM-PRODUCT-019: 로그인 + 초기 관리자 계정
 
-- status: planned
+- status: in-progress
 - related-issues: [#15]
 - blocks: [RM-PRODUCT-020]
 - 설명: Spring Security 기본 설정 + Flyway seed로 초기 관리자 계정 1명. 로그인 페이지 + 인증 후 관리자/일반 사용자 라우팅 분기. 셀프 가입 없음.
