@@ -45,6 +45,24 @@ class DbUserDetailsServiceTest {
         assertThat(details.getAuthorities())
                 .extracting("authority")
                 .containsExactly("ROLE_ADMIN");
+        assertThat(details.isEnabled()).isTrue();
+    }
+
+    @Test
+    @DisplayName("비활성 사용자는 UserDetails.isEnabled()=false로 변환되어 로그인 시 DisabledException")
+    void loadUserByUsername_disabledUserHasEnabledFalse() {
+        User disabled = User.builder()
+                .username("dormant")
+                .passwordHash("$2a$10$hash")
+                .email("dormant@example.com")
+                .role(Role.USER)
+                .enabled(false)
+                .build();
+        given(userRepository.findByUsername("dormant")).willReturn(Optional.of(disabled));
+
+        UserDetails details = service.loadUserByUsername("dormant");
+
+        assertThat(details.isEnabled()).isFalse();
     }
 
     @Test

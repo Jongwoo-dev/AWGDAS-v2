@@ -40,6 +40,9 @@ public class User {
     @Column(name = "role", nullable = false, length = 20)
     private Role role;
 
+    @Column(name = "enabled", nullable = false)
+    private boolean enabled = true;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -49,10 +52,31 @@ public class User {
     private LocalDateTime updatedAt;
 
     @Builder
-    private User(String username, String passwordHash, String email, Role role) {
+    private User(String username, String passwordHash, String email, Role role, Boolean enabled) {
         this.username = username;
         this.passwordHash = passwordHash;
         this.email = email;
         this.role = role;
+        this.enabled = enabled == null ? true : enabled;
+    }
+
+    public void enable() {
+        this.enabled = true;
+    }
+
+    public void disable() {
+        this.enabled = false;
+    }
+
+    public void updatePasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+
+    public void updateRole(Role role) {
+        this.role = role;
+    }
+
+    public void updateEmail(String email) {
+        this.email = email;
     }
 }
