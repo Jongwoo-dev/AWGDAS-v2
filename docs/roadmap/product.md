@@ -1,7 +1,7 @@
 ---
 roadmap-id: product
 status: active
-last-updated: 2026-04-29
+last-updated: 2026-05-07
 ---
 
 # product — AWGDAS 제품 본체 (게임 자동 생성 웹앱)
@@ -150,6 +150,7 @@ last-updated: 2026-04-29
 - status: planned
 - depends-on: [RM-PRODUCT-019]
 - blocks: [RM-PRODUCT-021]
+- related-issues: [#19]
 - 설명: 관리자 페이지에서 하위 계정 생성/비밀번호 랜덤 초기화/비활성화/삭제. 셀프 가입 없으니 모든 일반 사용자는 여기서 발급.
 
 ### RM-PRODUCT-021: 할당량 모델 + 관리자 조정
