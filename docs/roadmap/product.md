@@ -1,7 +1,7 @@
 ---
 roadmap-id: product
 status: active
-last-updated: 2026-05-07
+last-updated: 2026-05-08
 ---
 
 # product — AWGDAS 제품 본체 (게임 자동 생성 웹앱)
@@ -147,7 +147,8 @@ last-updated: 2026-05-07
 
 ### RM-PRODUCT-020: 관리자 — 하위 계정 CRUD
 
-- status: in-progress
+- status: done
+- completed-at: 2026-05-08
 - depends-on: [RM-PRODUCT-019]
 - blocks: [RM-PRODUCT-021]
 - related-issues: [#19]
