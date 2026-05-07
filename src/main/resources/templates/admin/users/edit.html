@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>사용자 수정 - AWGDAS-v2</title>
+</head>
+<body>
+    <h1>사용자 수정</h1>
+
+    <p>아이디: <strong th:text="${targetUser.username}"></strong></p>
+
+    <form th:action="@{|/admin/users/${targetUser.id}|}" th:object="${updateUserRequest}" method="post">
+        <div>
+            <label for="email">이메일</label>
+            <input type="email" id="email" th:field="*{email}" required maxlength="255">
+            <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" style="color: red;"></span>
+        </div>
+        <div>
+            <label for="role">역할</label>
+            <select id="role" th:field="*{role}">
+                <option th:each="r : ${roles}" th:value="${r}" th:text="${r}"></option>
+            </select>
+            <span th:if="${#fields.hasErrors('role')}" th:errors="*{role}" style="color: red;"></span>
+        </div>
+        <div>
+            <button type="submit">저장</button>
+            <a th:href="@{/admin/users}">취소</a>
+        </div>
+    </form>
+</body>
+</html>

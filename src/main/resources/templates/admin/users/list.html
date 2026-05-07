@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>사용자 관리 - AWGDAS-v2</title>
+</head>
+<body>
+    <h1>사용자 관리</h1>
+
+    <div th:if="${message}" style="color: green;">
+        <p th:text="${message}"></p>
+    </div>
+    <div th:if="${errorMessage}" style="color: red;">
+        <p th:text="${errorMessage}"></p>
+    </div>
+
+    <p><a th:href="@{/admin/users/new}">+ 새 사용자</a></p>
+
+    <form method="get" th:action="@{/admin/users}">
+        <label>역할:
+            <select name="role">
+                <option value="">전체</option>
+                <option th:each="r : ${roles}"
+                        th:value="${r}"
+                        th:text="${r}"
+                        th:selected="${roleFilter != null and roleFilter == r}"></option>
+            </select>
+        </label>
+        <label>활성 상태:
+            <select name="enabled">
+                <option value="">전체</option>
+                <option value="true" th:selected="${enabledFilter != null and enabledFilter}">활성</option>
+                <option value="false" th:selected="${enabledFilter != null and !enabledFilter}">비활성</option>
+            </select>
+        </label>
+        <button type="submit">필터 적용</button>
+    </form>
+
+    <table border="1" cellpadding="6" cellspacing="0">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>아이디</th>
+                <th>이메일</th>
+                <th>역할</th>
+                <th>활성</th>
+                <th>생성 시각</th>
+                <th>관리</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="u : ${page.content}">
+                <td th:text="${u.id}"></td>
+                <td th:text="${u.username}"></td>
+                <td th:text="${u.email}"></td>
+                <td th:text="${u.role}"></td>
+                <td th:text="${u.enabled} ? '활성' : '비활성'"></td>
+                <td th:text="${#temporals.format(u.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                <td>
+                    <a th:href="@{|/admin/users/${u.id}/edit|}">수정</a>
+                    <form th:action="@{|/admin/users/${u.id}/reset-password|}" method="post" style="display:inline;">
+                        <button type="submit" onclick="return confirm('비밀번호를 재설정할까요?');">비밀번호 재설정</button>
+                    </form>
+                    <form th:action="@{|/admin/users/${u.id}/toggle|}" method="post" style="display:inline;">
+                        <button type="submit"
+                                th:text="${u.enabled} ? '비활성화' : '활성화'"
+                                onclick="return confirm('상태를 변경할까요?');"></button>
+                    </form>
+                    <form th:action="@{|/admin/users/${u.id}/delete|}" method="post" style="display:inline;">
+                        <button type="submit" onclick="return confirm('정말 삭제할까요?');">삭제</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${page.content.empty}">
+                <td colspan="7" style="text-align:center;">표시할 사용자가 없습니다.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div>
+        <span th:text="|페이지 ${page.number + 1} / ${page.totalPages == 0 ? 1 : page.totalPages}|"></span>
+        <a th:if="${page.hasPrevious()}"
+           th:href="@{/admin/users(page=${page.number - 1}, size=${page.size}, role=${roleFilter}, enabled=${enabledFilter})}">이전</a>
+        <a th:if="${page.hasNext()}"
+           th:href="@{/admin/users(page=${page.number + 1}, size=${page.size}, role=${roleFilter}, enabled=${enabledFilter})}">다음</a>
+    </div>
+
+    <p><a th:href="@{/admin}">관리자 페이지로</a></p>
+</body>
+</html>

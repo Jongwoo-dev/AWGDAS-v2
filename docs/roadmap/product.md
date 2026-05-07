@@ -147,7 +147,7 @@ last-updated: 2026-05-07
 
 ### RM-PRODUCT-020: 관리자 — 하위 계정 CRUD
 
-- status: planned
+- status: in-progress
 - depends-on: [RM-PRODUCT-019]
 - blocks: [RM-PRODUCT-021]
 - related-issues: [#19]

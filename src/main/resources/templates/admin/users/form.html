@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>새 사용자 - AWGDAS-v2</title>
+</head>
+<body>
+    <h1>새 사용자 등록</h1>
+
+    <p>임시 비밀번호는 자동 생성되어 등록 후 화면에 1회 표시됩니다.</p>
+
+    <form th:action="@{/admin/users}" th:object="${createUserRequest}" method="post">
+        <div>
+            <label for="username">아이디</label>
+            <input type="text" id="username" th:field="*{username}" required minlength="3" maxlength="50">
+            <span th:if="${#fields.hasErrors('username')}" th:errors="*{username}" style="color: red;"></span>
+        </div>
+        <div>
+            <label for="email">이메일</label>
+            <input type="email" id="email" th:field="*{email}" required maxlength="255">
+            <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" style="color: red;"></span>
+        </div>
+        <div>
+            <label for="role">역할</label>
+            <select id="role" th:field="*{role}">
+                <option th:each="r : ${roles}" th:value="${r}" th:text="${r}"></option>
+            </select>
+            <span th:if="${#fields.hasErrors('role')}" th:errors="*{role}" style="color: red;"></span>
+        </div>
+        <div>
+            <button type="submit">등록</button>
+            <a th:href="@{/admin/users}">취소</a>
+        </div>
+    </form>
+</body>
+</html>

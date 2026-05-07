@@ -7,8 +7,10 @@
 <body>
     <h1>로그인</h1>
 
-    <div th:if="${param.error}">
-        <p style="color: red;">아이디 또는 비밀번호가 올바르지 않습니다.</p>
+    <div th:if="${param.error}"
+         th:with="exClass=${session != null and session.SPRING_SECURITY_LAST_EXCEPTION != null} ? ${session.SPRING_SECURITY_LAST_EXCEPTION.class.simpleName} : ''">
+        <p th:if="${exClass == 'DisabledException'}" style="color: red;">계정이 비활성화되었습니다. 관리자에게 문의하세요.</p>
+        <p th:unless="${exClass == 'DisabledException'}" style="color: red;">아이디 또는 비밀번호가 올바르지 않습니다.</p>
     </div>
     <div th:if="${param.logout}">
         <p style="color: green;">로그아웃되었습니다.</p>

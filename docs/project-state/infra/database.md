@@ -1,9 +1,9 @@
 ---
 area: database
 status: in-progress
-last-updated: 2026-04-29
-related-issues: [#15, #17]
-roadmap-refs: [RM-PRODUCT-019, RM-PRODUCT-023]
+last-updated: 2026-05-08
+related-issues: [#15, #17, #19]
+roadmap-refs: [RM-PRODUCT-019, RM-PRODUCT-023, RM-PRODUCT-020]
 ---
 
 # database — 데이터베이스/마이그레이션
@@ -21,11 +21,16 @@ roadmap-refs: [RM-PRODUCT-019, RM-PRODUCT-023]
   - `domain/User.java` — 첫 JPA 엔티티
   - `repository/UserRepository.java` — 첫 Spring Data JPA 리포지터리
   - 시간 컬럼은 Hibernate `@CreationTimestamp`/`@UpdateTimestamp`로 관리 (SQL `DEFAULT` 미사용 — `ddl-auto=validate` 정합성)
+- **users.enabled 컬럼 + UserRepository 확장** (이슈 #19, RM-PRODUCT-020)
+  - `src/main/resources/db/migration/V20260507170000__add_user_enabled.sql` — `enabled BOOLEAN NOT NULL DEFAULT TRUE` 컬럼 추가 + `idx_users_enabled` 인덱스. `DEFAULT TRUE`로 기존 admin seed 행은 자동 활성. H2 PostgreSQL mode + PostgreSQL 양쪽 호환
+  - `domain/User.java` — `enabled` 필드(`@Column nullable=false`, 기본값 `true`) + 비즈니스 메서드(`enable`/`disable`/`updatePasswordHash`/`updateRole`/`updateEmail`)
+  - `repository/UserRepository.java` — `findByEnabled(boolean, Pageable)`, `findByRole(Role, Pageable)`, `findByRoleAndEnabled(Role, boolean, Pageable)`, `countByRoleAndEnabled(Role, boolean)` 추가
 
 ## 미구현 / TODO
 
 - 운영용 PostgreSQL 프로파일 미정의
 - 추가 도메인 엔티티(게임 명세, 요청, 갤러리 등) 없음
+- 할당량 모델(`RM-PRODUCT-021`) 진입 시 `users` 테이블에 quota 컬럼 또는 별도 테이블 추가 필요
 
 ## 알려진 제약
 
@@ -42,6 +47,7 @@ roadmap-refs: [RM-PRODUCT-019, RM-PRODUCT-023]
 - `src/main/resources/application-test.yaml`
 - `src/main/resources/db/migration/V20260428155500__create_users_table.sql`
 - `src/main/resources/db/migration/V20260428155600__seed_initial_admin.sql`
+- `src/main/resources/db/migration/V20260507170000__add_user_enabled.sql`
 - `src/main/java/com/jongwoo_dev/awgdas_v2/domain/User.java`
 - `src/main/java/com/jongwoo_dev/awgdas_v2/repository/UserRepository.java`
 - `config/secrets.example.yaml` (로컬 + 운영 예시 병행)

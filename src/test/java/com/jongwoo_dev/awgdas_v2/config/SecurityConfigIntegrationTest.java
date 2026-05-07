@@ -1,15 +1,21 @@
 package com.jongwoo_dev.awgdas_v2.config;
 
+import com.jongwoo_dev.awgdas_v2.domain.Role;
+import com.jongwoo_dev.awgdas_v2.domain.User;
+import com.jongwoo_dev.awgdas_v2.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
@@ -22,6 +28,12 @@ class SecurityConfigIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Test
     @DisplayName("비인증 사용자가 홈에 접근할 수 있다")
@@ -74,5 +86,47 @@ class SecurityConfigIntegrationTest {
         mockMvc.perform(get("/admin"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/login"));
+    }
+
+    @Test
+    @DisplayName("ROLE_ADMIN은 /admin/users에 접근할 수 있다")
+    void admin_canAccessAdminUsers() throws Exception {
+        mockMvc.perform(get("/admin/users").with(user("admin").roles("ADMIN")))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("ROLE_USER가 /admin/users 접근 시 403")
+    void user_forbiddenOnAdminUsers() throws Exception {
+        mockMvc.perform(get("/admin/users").with(user("alice").roles("USER")))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("익명 사용자가 /admin/users 접근 시 로그인으로 리다이렉트")
+    void anonymous_redirectedFromAdminUsers() throws Exception {
+        mockMvc.perform(get("/admin/users"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/login"));
+    }
+
+    @Test
+    @DisplayName("비활성 계정은 로그인 거부")
+    void disabledUser_cannotLogin() throws Exception {
+        User dormant = User.builder()
+                .username("dormant-user")
+                .passwordHash(passwordEncoder.encode("test1234"))
+                .email("dormant@example.com")
+                .role(Role.USER)
+                .enabled(false)
+                .build();
+        userRepository.save(dormant);
+        try {
+            mockMvc.perform(formLogin().user("dormant-user").password("test1234"))
+                    .andExpect(unauthenticated())
+                    .andExpect(redirectedUrl("/login?error"));
+        } finally {
+            userRepository.delete(dormant);
+        }
     }
 }
