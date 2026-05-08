@@ -1,7 +1,7 @@
 ---
 roadmap-id: product
 status: active
-last-updated: 2026-05-08
+last-updated: 2026-05-09
 ---
 
 # product — AWGDAS 제품 본체 (게임 자동 생성 웹앱)
@@ -156,8 +156,9 @@ last-updated: 2026-05-08
 
 ### RM-PRODUCT-021: 할당량 모델 + 관리자 조정
 
-- status: planned
+- status: in-progress
 - depends-on: [RM-PRODUCT-020]
+- related-issues: [#21]
 - 설명: 계정별 게임 생성 요청 할당량(기본 10) 모델. 관리자가 백오피스에서 특정 사용자 할당량 +1 수동 보정. 시스템성 실패 시 자동 복구(RM-PRODUCT-011)와 별개의 운영용 안전망.
 
 ### RM-PRODUCT-022: 인앱 알림 뱃지
