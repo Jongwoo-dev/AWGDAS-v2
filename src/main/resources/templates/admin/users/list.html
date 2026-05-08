@@ -44,6 +44,7 @@
                 <th>이메일</th>
                 <th>역할</th>
                 <th>활성</th>
+                <th>할당량</th>
                 <th>생성 시각</th>
                 <th>관리</th>
             </tr>
@@ -55,6 +56,12 @@
                 <td th:text="${u.email}"></td>
                 <td th:text="${u.role}"></td>
                 <td th:text="${u.enabled} ? '활성' : '비활성'"></td>
+                <td>
+                    <span th:text="${u.quota}"></span>
+                    <form th:action="@{|/admin/users/${u.id}/quota-up|}" method="post" style="display:inline;">
+                        <button type="submit">+1</button>
+                    </form>
+                </td>
                 <td th:text="${#temporals.format(u.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
                 <td>
                     <a th:href="@{|/admin/users/${u.id}/edit|}">수정</a>
@@ -72,7 +79,7 @@
                 </td>
             </tr>
             <tr th:if="${page.content.empty}">
-                <td colspan="7" style="text-align:center;">표시할 사용자가 없습니다.</td>
+                <td colspan="8" style="text-align:center;">표시할 사용자가 없습니다.</td>
             </tr>
         </tbody>
     </table>

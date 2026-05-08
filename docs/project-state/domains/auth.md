@@ -1,9 +1,9 @@
 ---
 domain: auth
 status: in-progress
-last-updated: 2026-05-08
-related-issues: [#4, #15, #19]
-roadmap-refs: [RM-PRODUCT-019, RM-PRODUCT-020]
+last-updated: 2026-05-09
+related-issues: [#4, #15, #19, #21]
+roadmap-refs: [RM-PRODUCT-019, RM-PRODUCT-020, RM-PRODUCT-021]
 ---
 
 # auth — 인증/로그인
@@ -42,6 +42,15 @@ roadmap-refs: [RM-PRODUCT-019, RM-PRODUCT-020]
   - 템플릿: `templates/admin/users/list.html`(역할/활성 필터 + 페이징), `form.html`(생성), `edit.html`(수정 — username readonly)
   - `templates/admin/index.html`에 `/admin/users` 진입 링크 추가
   - 테스트: `service/AdminUserServiceTest`(Mockito 단위, 자기 보호/last-admin 케이스 포함), `controller/AdminUserControllerTest`(WebMvcTest, 권한 매트릭스 + CSRF + validation + flash 검증), `util/PasswordGeneratorTest`, `repository/UserRepositoryTest` 확장(`findByEnabled`/`findByRole`/`findByRoleAndEnabled`/`countByRoleAndEnabled`), `service/DbUserDetailsServiceTest` 확장(비활성 케이스), `config/SecurityConfigIntegrationTest` 확장(`/admin/users/**` 매트릭스 + 비활성 계정 로그인 거부 통합 검증)
+- **관리자 — 사용자 할당량 +1 조정** (RM-PRODUCT-021, 이슈 #21)
+  - `controller/AdminUserController.java` — `POST /admin/users/{id}/quota-up` (관리자 페이지 목록의 "+1" 버튼). flash `message`로 "사용자 X 할당량을 +1 했습니다. 현재: N" 표시 후 redirect
+  - `service/AdminUserService.java` — `incrementQuota(Long id)` 단일 트랜잭션, `User.adjustQuota(1)` 호출 후 `QuotaAdjustment(username, currentQuota)` record 반환
+  - `domain/User.java` — `quota` 필드(`@Column nullable=false`, builder 폴백 시 기본 10) + `adjustQuota(int positiveDelta)` 비즈니스 메서드(delta < 1이면 `IllegalArgumentException`)
+  - DTO: `dto/UserListItem.java`에 `quota` 필드 추가
+  - 템플릿: `templates/admin/users/list.html`에 "할당량" 컬럼 + +1 버튼 폼 (Thymeleaf가 `_csrf` hidden input 자동 주입)
+  - 자기 자신 quota 조정 허용 (자기 보호 규칙 미적용 — 권한/신원을 훼손하지 않는 리소스 카테고리. 향후 -1 차감 도입 시 재검토)
+  - 차감(-1) 미구현 — 게임 생성 기능 진입 시 별도 작업
+  - 테스트: `domain/UserTest`(builder 폴백 + adjustQuota 양/0/음수 케이스), `repository/UserRepositoryTest` 확장(seed admin `quota=10` 검증, 신규 사용자 기본값 검증), `service/AdminUserServiceTest` 확장(`incrementQuota` 정상 + 사용자 없음), `controller/AdminUserControllerTest` 확장(quota-up redirect+flash, ROLE_USER 403, CSRF 누락 403)
 
 ## 미구현 / TODO
 
@@ -87,7 +96,9 @@ roadmap-refs: [RM-PRODUCT-019, RM-PRODUCT-020]
 - `src/main/resources/db/migration/V20260428155500__create_users_table.sql`
 - `src/main/resources/db/migration/V20260428155600__seed_initial_admin.sql`
 - `src/main/resources/db/migration/V20260507170000__add_user_enabled.sql`
+- `src/main/resources/db/migration/V20260509000700__add_user_quota.sql`
 - `src/test/java/com/jongwoo_dev/awgdas_v2/config/SecurityConfigIntegrationTest.java`
+- `src/test/java/com/jongwoo_dev/awgdas_v2/domain/UserTest.java`
 - `src/test/java/com/jongwoo_dev/awgdas_v2/controller/LoginControllerTest.java`
 - `src/test/java/com/jongwoo_dev/awgdas_v2/controller/AdminControllerTest.java`
 - `src/test/java/com/jongwoo_dev/awgdas_v2/controller/AdminUserControllerTest.java`

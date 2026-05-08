@@ -204,6 +204,28 @@ class AdminUserServiceTest {
                 .isInstanceOf(LastAdminException.class);
     }
 
+    @Test
+    @DisplayName("incrementQuota — quota +1 증가, username/현재 quota 반환")
+    void incrementQuota_increasesByOne() {
+        User target = userWith("alice", Role.USER, true);
+        given(userRepository.findById(1L)).willReturn(Optional.of(target));
+
+        AdminUserService.QuotaAdjustment result = service.incrementQuota(1L);
+
+        assertThat(target.getQuota()).isEqualTo(11);
+        assertThat(result.username()).isEqualTo("alice");
+        assertThat(result.currentQuota()).isEqualTo(11);
+    }
+
+    @Test
+    @DisplayName("incrementQuota — 사용자 없음 시 UserNotFoundException")
+    void incrementQuota_userNotFoundThrows() {
+        given(userRepository.findById(99L)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.incrementQuota(99L))
+                .isInstanceOf(UserNotFoundException.class);
+    }
+
     private User adminUser() {
         return userWith("admin", Role.ADMIN, true);
     }

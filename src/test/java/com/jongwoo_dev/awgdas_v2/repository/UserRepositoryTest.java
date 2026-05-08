@@ -30,6 +30,7 @@ class UserRepositoryTest {
         assertThat(found.get().getRole()).isEqualTo(Role.ADMIN);
         assertThat(found.get().getEmail()).isEqualTo("admin@awgdas.local");
         assertThat(found.get().isEnabled()).isTrue();
+        assertThat(found.get().getQuota()).isEqualTo(10);
     }
 
     @Test
@@ -41,7 +42,7 @@ class UserRepositoryTest {
     }
 
     @Test
-    @DisplayName("새 사용자 저장 후 조회할 수 있다 (createdAt/updatedAt 자동 채움, enabled 기본 true)")
+    @DisplayName("새 사용자 저장 후 조회할 수 있다 (createdAt/updatedAt 자동 채움, enabled 기본 true, quota 기본 10)")
     void save_persistsUserWithTimestamps() {
         User newUser = User.builder()
                 .username("alice")
@@ -56,6 +57,7 @@ class UserRepositoryTest {
         assertThat(saved.getCreatedAt()).isNotNull();
         assertThat(saved.getUpdatedAt()).isNotNull();
         assertThat(saved.isEnabled()).isTrue();
+        assertThat(saved.getQuota()).isEqualTo(10);
     }
 
     @Test
