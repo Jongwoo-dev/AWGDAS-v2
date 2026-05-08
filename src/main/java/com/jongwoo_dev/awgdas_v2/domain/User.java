@@ -43,6 +43,9 @@ public class User {
     @Column(name = "enabled", nullable = false)
     private boolean enabled = true;
 
+    @Column(name = "quota", nullable = false)
+    private int quota;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -52,12 +55,13 @@ public class User {
     private LocalDateTime updatedAt;
 
     @Builder
-    private User(String username, String passwordHash, String email, Role role, Boolean enabled) {
+    private User(String username, String passwordHash, String email, Role role, Boolean enabled, Integer quota) {
         this.username = username;
         this.passwordHash = passwordHash;
         this.email = email;
         this.role = role;
         this.enabled = enabled == null ? true : enabled;
+        this.quota = quota == null ? 10 : quota;
     }
 
     public void enable() {
@@ -78,5 +82,12 @@ public class User {
 
     public void updateEmail(String email) {
         this.email = email;
+    }
+
+    public void adjustQuota(int positiveDelta) {
+        if (positiveDelta < 1) {
+            throw new IllegalArgumentException("할당량 조정값은 양수여야 합니다: " + positiveDelta);
+        }
+        this.quota += positiveDelta;
     }
 }

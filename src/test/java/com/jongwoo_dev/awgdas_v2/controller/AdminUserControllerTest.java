@@ -204,6 +204,39 @@ class AdminUserControllerTest {
                 .andExpect(flash().attributeExists("errorMessage"));
     }
 
+    @Test
+    @DisplayName("POST /admin/users/{id}/quota-up — redirect + message flash")
+    void quotaUp_success() throws Exception {
+        given(adminUserService.incrementQuota(1L))
+                .willReturn(new AdminUserService.QuotaAdjustment("alice", 11));
+
+        mockMvc.perform(post("/admin/users/1/quota-up")
+                        .with(user("admin").roles("ADMIN"))
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/users"))
+                .andExpect(flash().attributeExists("message"));
+
+        verify(adminUserService).incrementQuota(1L);
+    }
+
+    @Test
+    @DisplayName("POST /admin/users/{id}/quota-up — ROLE_USER 403")
+    void quotaUp_userForbidden() throws Exception {
+        mockMvc.perform(post("/admin/users/1/quota-up")
+                        .with(user("alice").roles("USER"))
+                        .with(csrf()))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("POST /admin/users/{id}/quota-up — CSRF 토큰 누락 403")
+    void quotaUp_missingCsrfForbidden() throws Exception {
+        mockMvc.perform(post("/admin/users/1/quota-up")
+                        .with(user("admin").roles("ADMIN")))
+                .andExpect(status().isForbidden());
+    }
+
     private User sampleUser(String username, Role role, boolean enabled) {
         return User.builder()
                 .username(username)

@@ -11,6 +11,7 @@ public record UserListItem(
         String email,
         Role role,
         boolean enabled,
+        int quota,
         LocalDateTime createdAt
 ) {
     public static UserListItem from(User user) {
@@ -20,6 +21,7 @@ public record UserListItem(
                 user.getEmail(),
                 user.getRole(),
                 user.isEnabled(),
+                user.getQuota(),
                 user.getCreatedAt()
         );
     }

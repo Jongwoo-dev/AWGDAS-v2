@@ -128,4 +128,12 @@ public class AdminUserController {
         attrs.addFlashAttribute("message", "사용자 삭제 완료.");
         return "redirect:/admin/users";
     }
+
+    @PostMapping("/{id}/quota-up")
+    public String quotaUp(@PathVariable Long id, RedirectAttributes attrs) {
+        AdminUserService.QuotaAdjustment result = adminUserService.incrementQuota(id);
+        attrs.addFlashAttribute("message",
+                "사용자 '" + result.username() + "' 할당량을 +1 했습니다. 현재: " + result.currentQuota());
+        return "redirect:/admin/users";
+    }
 }

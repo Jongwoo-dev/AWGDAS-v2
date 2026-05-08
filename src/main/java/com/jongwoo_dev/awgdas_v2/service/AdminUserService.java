@@ -110,6 +110,13 @@ public class AdminUserService {
         userRepository.delete(user);
     }
 
+    @Transactional
+    public QuotaAdjustment incrementQuota(Long id) {
+        User user = get(id);
+        user.adjustQuota(1);
+        return new QuotaAdjustment(user.getUsername(), user.getQuota());
+    }
+
     private boolean isSelf(User user, String currentUsername) {
         return currentUsername != null && currentUsername.equals(user.getUsername());
     }
@@ -122,5 +129,8 @@ public class AdminUserService {
     }
 
     public record CreatedUser(User user, String temporaryPassword) {
+    }
+
+    public record QuotaAdjustment(String username, int currentQuota) {
     }
 }
