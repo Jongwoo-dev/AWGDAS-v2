@@ -13,14 +13,14 @@
 
 | 파일 | status | 한 줄 요약 |
 |------|--------|-----------|
-| [domains/auth.md](domains/auth.md) | in-progress | DB 기반 로그인 + 관리자 사용자 CRUD(/admin/users) + 비활성 계정 로그인 거부, OAuth/본인 비번 변경 미구현 |
+| [domains/auth.md](domains/auth.md) | in-progress | DB 기반 로그인 + 관리자 사용자 CRUD(/admin/users) + 비활성 계정 로그인 거부 + 할당량 +1 조정, OAuth/본인 비번 변경 미구현 |
 | [domains/home.md](domains/home.md) | stable | 인증 불필요 홈 페이지, 로직 없음 |
 
 ## 인프라
 
 | 파일 | status | 한 줄 요약 |
 |------|--------|-----------|
-| [infra/database.md](infra/database.md) | in-progress | Flyway 마이그레이션 3개(users, admin seed, enabled column), JPA 엔티티 1개(User), UserRepository에 페이징/필터 쿼리 |
+| [infra/database.md](infra/database.md) | in-progress | Flyway 마이그레이션 4개(users, admin seed, enabled, quota), JPA 엔티티 1개(User), UserRepository에 페이징/필터 쿼리 |
 | [infra/security.md](infra/security.md) | in-progress | Spring Security formLogin, DB 기반 UserDetailsService(enabled 매핑), /admin/** + /admin/users/** ROLE_ADMIN, 비활성 계정 로그인 거부 |
 | [infra/testing.md](infra/testing.md) | in-progress | WebMvcTest + SpringBootTest 패턴, 통합/단위 분리 |
 
