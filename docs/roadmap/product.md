@@ -156,7 +156,8 @@ last-updated: 2026-05-09
 
 ### RM-PRODUCT-021: 할당량 모델 + 관리자 조정
 
-- status: in-progress
+- status: done
+- completed-at: 2026-05-09
 - depends-on: [RM-PRODUCT-020]
 - related-issues: [#21]
 - 설명: 계정별 게임 생성 요청 할당량(기본 10) 모델. 관리자가 백오피스에서 특정 사용자 할당량 +1 수동 보정. 시스템성 실패 시 자동 복구(RM-PRODUCT-011)와 별개의 운영용 안전망.
